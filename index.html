@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <!-- Основні мета-теги -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- SEO-оптимізація -->
+    <title>Вивчення англійських слів - інтерактивний тренажер</title>
+    <meta name="description" content="Інтерактивний тренажер для вивчення англійських слів: анатомія, їжа, спорт, сім'я, робота та багато іншого. Покращуйте словниковий запас легко та ефективно!">
+    <meta name="keywords" content="вивчення англійських слів, тренажер англійської, словник англійської мови, інтерактивне навчання, англійська для початківців, словниковий запас">
+    <meta name="categories" content="Освіта, Вивчення мов, Англійська мова, Інтерактивне навчання">
+    <meta name="robots" content="index, follow">
+
+    <!-- Open Graph для соціальних мереж -->
+    <meta property="og:title" content="Вивчення англійських слів - інтерактивний тренажер">
+    <meta property="og:description" content="Інтерактивний тренажер для вивчення англійських слів: анатомія, їжа, спорт, сім'я, робота та багато іншого. Покращуйте словниковий запас легко та ефективно!">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://your-website.com/">
+    <meta property="og:image" content="images/preview-image.png">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+
+    <!-- Підключення зовнішніх ресурсів -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Заголовок сторінки -->
+    <div class="header">
+        <div class="menu-icon" id="menu-toggle">
+            <span class="material-icons">menu</span>
+        </div>
+        <div class="category-title"></div>
+        <a href="https://your-donation-page.com" target="_blank" class="coffee-icon">
+            <span class="material-icons">local_cafe</span>
+        </a>
+    </div>
+
+    <!-- Основний контейнер -->
+    <div class="container">
+        <!-- Бічна панель навігації -->
+        <div class="nav-sidebar">
+            <div class="sidebar-header-container">
+                <h2 class="sidebar-header">Меню</h2>
+            </div>
+            <ul class="nav-list">
+                <li data-vocab="anatomy"><span class="material-icons">medical_services</span> Анатомія (100)</li>
+                <li data-vocab="food"><span class="material-icons">restaurant</span> Їжа (100)</li>
+                <li data-vocab="sport"><span class="material-icons">fitness_center</span> Спорт (100)</li>
+                <li data-vocab="family"><span class="material-icons">family_restroom</span> Сім'я (100)</li>
+                <li data-vocab="work"><span class="material-icons">badge</span> Робота (100)</li>
+                <li data-vocab="animals"><span class="material-icons">pets</span> Тварини (100)</li>
+                <li data-vocab="technologies"><span class="material-icons">devices</span> Технології (100)</li>
+                <li data-vocab="travel"><span class="material-icons">flight</span> Подорожі (100)</li>
+                <li data-vocab="nature"><span class="material-icons">park</span> Природа (100)</li>
+                <li data-vocab="education"><span class="material-icons">school</span> Освіта (100)</li>
+                <li data-vocab="clothes"><span class="material-icons">checkroom</span> Одяг (100)</li>
+                <!-- Додавайте нові категорії тут -->
+            </ul>
+        </div>
+
+        <!-- Бічна панель словника -->
+        <div class="dictionary-sidebar">
+            <div class="dictionary-header-container">
+                <input type="text" class="filter-input" placeholder="Знайти слово">
+            </div>
+            <ul class="word-list"></ul>
+        </div>
+
+        <!-- Картка для відображення слів -->
+        <div class="card">
+            <div class="main-content">
+                <div class="word-display"></div>
+                <div class="transcription"></div>
+                <div class="translation"></div>
+                <div class="button-group">
+                    <button class="button know-button"><span class="material-icons">refresh</span>Вже знаю</button>
+                    <button class="button listen-button"><span class="material-icons">volume_up</span></button>
+                </div>
+                <button class="button dictionary-button"><span class="material-icons">menu_book</span>Словник</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Футер -->
+    <div class="footer">
+        Created by <a href="https://github.com/codeorlov" target="_blank">Eugene Orlov</a>
+    </div>
+
+    <!-- Підключення JavaScript -->
+    <script src="js/script.js"></script>
+</body>
+</html>

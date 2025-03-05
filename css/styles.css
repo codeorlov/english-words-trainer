@@ -1,0 +1,472 @@
+/* Кореневі змінні для стилізації */
+:root {
+    /* Кольори */
+    --primary-white: #FFFFFF;       /* Основний білий колір */
+    --primary-green: #3CB371;       /* Основний зелений колір */
+    --hover-green: #2E8B57;         /* Зелений колір при наведенні */
+    --primary-yellow: #FFD700;      /* Основний жовтий колір */
+    --hover-yellow: #DAA520;        /* Жовтий колір при наведенні */
+    --primary-blue: #4169E1;        /* Основний синій колір */
+    --hover-blue: #27408B;          /* Синій колір при наведенні */
+    --sidebar-bg: #F8F9FA;          /* Колір фону бічної панелі */
+    --border-color: #DEE2E6;        /* Колір межі */
+    --text-dark: #303030;           /* Темний колір тексту */
+    --text-gray: #505050;           /* Сірий колір тексту */
+
+    /* Шрифти та розміри */
+    --font-family: "Roboto", Arial, sans-serif; /* Основний шрифт */
+    --font-size-large: 52px;        /* Великий розмір шрифту */
+    --font-size-medium: 24px;       /* Середній розмір шрифту */
+    --font-size-small: 21px;        /* Малий розмір шрифту */
+
+    /* Розміри та відступи */
+    --button-height: 54px;          /* Висота кнопок */
+    --sidebar-width: 300px;         /* Ширина бічної панелі */
+    --transition-duration: 0.2s;    /* Тривалість переходів */
+    --item-spacing: 10px;           /* Відступ між елементами */
+    --border: 1px solid #E0E0E0;    /* Стиль межі */
+    --card-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Тінь для карток */
+    --border-radius: 10px;          /* Радіус заокруглення */
+    --header-height: 70px;          /* Висота заголовка */
+    --flip-duration: 0.5s;          /* Тривалість анімації перевороту */
+}
+
+/* Стилі для основного контейнера сторінки */
+body {
+    margin: 0;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    font-family: var(--font-family);
+    background-color: var(--primary-white);
+    color: var(--text-dark);
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Стилі для заголовка */
+.header {
+    padding: 0;
+    background-color: var(--sidebar-bg);
+    border-bottom: var(--border);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    height: var(--header-height);
+    justify-content: space-between;
+}
+
+/* Іконка меню */
+.menu-icon {
+    cursor: pointer;
+    padding: 5px 10px;
+    display: flex;
+    align-items: center;
+}
+
+.menu-icon .material-icons {
+    font-size: 30px;
+    color: var(--primary-blue);
+}
+
+.menu-icon:hover .material-icons {
+    color: var(--hover-blue);
+}
+
+/* Заголовок категорії */
+.category-title {
+    font-family: var(--font-family);
+    font-size: 20px;
+    font-weight: 900;
+    color: var(--text-dark);
+    text-align: center;
+    flex-grow: 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Іконка кави */
+.coffee-icon {
+    cursor: pointer;
+    padding: 5px 10px;
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+}
+
+.coffee-icon .material-icons {
+    font-size: 30px;
+    color: var(--primary-blue);
+}
+
+.coffee-icon:hover .material-icons {
+    color: var(--hover-blue);
+}
+
+/* Стилі для футера */
+.footer {
+    text-align: center;
+    padding: 20px;
+    font-size: 16px;
+    color: var(--text-gray);
+    flex-shrink: 0;
+}
+
+.footer a {
+    color: var(--primary-blue);
+    text-decoration: none;
+}
+
+.footer a:hover {
+    text-decoration: underline;
+}
+
+/* Основний контейнер */
+.container {
+    width: 100%;
+    margin: 0 auto;
+    position: relative;
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Стилі для картки */
+.card {
+    background-color: var(--primary-white);
+    border: var(--border);
+    box-shadow: var(--card-shadow);
+    border-radius: var(--border-radius);
+    padding: 20px;
+    width: 100%;
+    max-width: 300px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    perspective: 1000px;
+    transition: transform var(--flip-duration) ease-in-out;
+    transform-style: preserve-3d;
+}
+
+.card.flip {
+    transform: rotateY(180deg);
+}
+
+/* Основний вміст */
+.main-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+}
+
+/* Відображення слова */
+.word-display {
+    font-family: var(--font-family);
+    font-size: var(--font-size-large);
+    font-weight: 900;
+    color: var(--text-dark);
+    margin: 0 0 15px 0;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Транскрипція */
+.transcription {
+    font-family: var(--font-family);
+    font-size: var(--font-size-small);
+    color: var(--text-gray);
+    margin: 0 0 15px 0;
+    text-align: center;
+}
+
+/* Переклад */
+.translation {
+    font-family: var(--font-family);
+    font-size: var(--font-size-medium);
+    font-weight: 900;
+    color: var(--text-dark);
+    margin: 0 0 15px 0;
+    text-align: center;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Група кнопок */
+.button-group {
+    display: flex;
+    justify-content: center;
+    padding: 10px;
+}
+
+/* Загальні стилі для кнопок */
+.button {
+    font-family: var(--font-family);
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: var(--button-height);
+    text-decoration: none;
+    border: none;
+    transition: background-color var(--transition-duration) ease;
+}
+
+/* Кнопка "Знаю" */
+.know-button {
+    background-color: var(--primary-green);
+    color: var(--primary-white);
+    width: 240px;
+    margin-right: 10px;
+}
+
+.know-button:hover,
+.know-button:active {
+    background-color: var(--hover-green);
+}
+
+/* Кнопка "Прослухати" */
+.listen-button {
+    background-color: var(--primary-yellow);
+    width: 54px;
+}
+
+.listen-button:hover,
+.listen-button:active {
+    background-color: var(--hover-yellow);
+}
+
+/* Кнопка "Словник" */
+.dictionary-button {
+    background-color: var(--primary-blue);
+    color: var(--primary-white);
+    width: 300px;
+}
+
+.dictionary-button:hover,
+.dictionary-button:active {
+    background-color: var(--hover-blue);
+}
+
+/* Бічна панель навігації */
+.nav-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    transform: translateX(-100%);
+    width: var(--sidebar-width);
+    height: 100dvh;
+    background-color: var(--sidebar-bg);
+    padding: 0;
+    transition: transform var(--transition-duration) ease;
+    z-index: 9999;
+    text-align: left;
+    box-shadow: var(--card-shadow);
+    visibility: hidden;
+    will-change: transform;
+    border: var(--border);
+}
+
+/* Бічна панель словника */
+.dictionary-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    transform: translateX(-100%);
+    width: var(--sidebar-width);
+    height: 100dvh;
+    background-color: var(--sidebar-bg);
+    padding: 0;
+    transition: transform var(--transition-duration) ease;
+    z-index: 9998;
+    text-align: left;
+    box-shadow: var(--card-shadow);
+    visibility: hidden;
+    will-change: transform;
+    border: var(--border);
+}
+
+.nav-sidebar.open,
+.dictionary-sidebar.open {
+    transform: translateX(0);
+    visibility: visible;
+}
+
+/* Контейнер заголовка бічної панелі */
+.sidebar-header-container {
+    height: var(--header-height);
+    padding: 10px;
+    margin: 0;
+    width: 100%;
+    box-sizing: border-box;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+}
+
+/* Заголовок бічної панелі */
+.sidebar-header {
+    font-family: var(--font-family);
+    font-size: 22px;
+    font-weight: 900;
+    color: var(--text-dark);
+    margin: 0;
+    text-transform: uppercase;
+    display: block;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Контейнер заголовка словника */
+.dictionary-header-container {
+    height: var(--header-height);
+    padding: 10px;
+    margin: 0;
+    width: 100%;
+    box-sizing: border-box;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+}
+
+/* Поле вводу для фільтрації */
+.filter-input {
+    width: 100%;
+    padding: 12px 18px;
+    font-family: var(--font-family);
+    font-size: 16px;
+    border: none;
+    border-radius: 10px;
+    margin: 0;
+    box-sizing: border-box;
+    font-weight: normal;
+    outline: none;
+}
+
+.filter-input:focus {
+    border: none;
+    outline: none;
+}
+
+/* Список слів */
+.word-list {
+    list-style: none;
+    padding: 10px;
+    margin: 0;
+    height: 100%;
+    max-height: calc(100dvh - var(--header-height) - 10px);
+    overflow-y: auto;
+    font-family: var(--font-family);
+    font-size: 16px;
+    font-weight: bold;
+    color: var(--text-dark);
+}
+
+.word-list li {
+    background-color: var(--primary-white);
+    border: 1px solid var(--border-color);
+    padding: 12px 18px;
+    margin-bottom: var(--item-spacing);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    cursor: pointer;
+    border-radius: 10px;
+}
+
+.word-list li .word-row {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.word-list li p {
+    margin: 5px 0 0 34px;
+    font-weight: normal;
+    font-size: 16px;
+    color: var(--text-dark);
+}
+
+.word-list li:hover,
+.word-list li:active {
+    background-color: var(--primary-blue);
+    color: var(--primary-white);
+    transition: background-color var(--transition-duration) ease, color var(--transition-duration) ease;
+}
+
+.word-list li:hover .material-icons,
+.word-list li:active .material-icons {
+    color: var(--primary-white);
+}
+
+.word-list li:hover p,
+.word-list li:active p {
+    color: var(--primary-white);
+}
+
+/* Навігаційний список */
+.nav-list {
+    list-style: none;
+    padding: 0;
+    margin: 10px;
+}
+
+.nav-list li {
+    padding: 12px 18px;
+    margin-bottom: var(--item-spacing);
+    cursor: pointer;
+    border-radius: 10px;
+    font-family: var(--font-family);
+    font-size: 16px;
+    font-weight: 900;
+    color: var(--text-dark);
+    display: flex;
+    align-items: center;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.nav-list li .material-icons {
+    margin-right: 10px;
+    color: var(--primary-blue);
+}
+
+.nav-list li:hover,
+.nav-list li.active {
+    background-color: var(--primary-blue);
+    color: var(--primary-white);
+}
+
+.nav-list li:hover .material-icons,
+.nav-list li.active .material-icons {
+    color: var(--primary-white);
+}
+
+/* Іконки Material Design */
+.material-icons {
+    font-size: 24px;
+    vertical-align: middle;
+}
+
+.know-button .material-icons,
+.dictionary-button .material-icons {
+    color: var(--primary-white);
+    margin-right: 10px;
+}
+
+.listen-button .material-icons {
+    color: var(--primary-white);
+    margin-right: 0;
+}
+
+.word-list li .material-icons {
+    color: var(--primary-blue);
+    margin-right: 10px;
+}
