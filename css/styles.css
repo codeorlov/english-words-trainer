@@ -3,6 +3,11 @@ body {
     background: linear-gradient(135deg, #f0f4f8, #d9e2ec);
     color: #333;
 }
+
+.vh-100-dynamic {
+    height: 100dvh !important;
+}
+
 .navbar {
     background: #ffffff;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
