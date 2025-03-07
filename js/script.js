@@ -1,40 +1,34 @@
-// Константи для конфігурації програми
-const SPEECH_RATE = 1; // Швидкість мовлення для синтезатора (1 - нормальна швидкість)
-const SIDEBAR_TRANSITION_DURATION = 200; // Тривалість анімації бічної панелі в мілісекундах
+const SPEECH_RATE = 1;
+const ANIMATION_DURATION = 500;
 
-// Об'єкт із селекторами для DOM-елементів
 const SELECTORS = {
-    wordDisplay: '.word-display', // Селектор для відображення слова
-    transcription: '.transcription', // Селектор для транскрипції
-    translation: '.translation', // Селектор для перекладу
-    wordList: '.word-list', // Селектор для списку вивчених слів
-    navSidebar: '.nav-sidebar', // Селектор для навігаційної бічної панелі
-    dictionarySidebar: '.dictionary-sidebar', // Селектор для словникової бічної панелі
-    menuIcon: '.menu-icon', // Селектор для іконки меню
-    dictionaryButton: '.dictionary-button', // Селектор для кнопки словника
-    knowButton: '.know-button', // Селектор для кнопки "Вже знаю"
-    listenButton: '.listen-button', // Селектор для кнопки прослуховування
-    filterInput: '.filter-input', // Селектор для поля фільтрації
-    navItems: '.nav-list li', // Селектор для елементів меню
-    card: '.card', // Селектор для картки зі словом
-    categoryTitle: '.category-title', // Селектор для заголовка категорії
+    wordDisplay: '.word-display',
+    transcription: '.transcription',
+    translation: '.translation',
+    wordList: '.word-list',
+    navSidebar: '#navSidebar',
+    dictionaryModal: '#dictionaryModal',
+    menuIcon: '.navbar-toggler',
+    dictionaryButton: '.dictionary-button',
+    knowButton: '.know-button',
+    listenButton: '.listen-button',
+    filterInput: '.filter-input',
+    navItems: '.nav-item',
+    card: '.card',
+    categoryTitle: '.category-title',
+    progressBar: '.progress-bar',
+    progressText: '.progress-text',
 };
 
-// Об'єкт стану програми
 let state = {
-    viewedWords: [], // Масив слів, які користувач уже переглядав
-    currentFilter: '', // Поточний фільтр для пошуку слів
-    VOCABULARY: [], // Масив словникових даних
-    currentVocab: 'anatomy', // Поточна категорія за замовчуванням
+    viewedWords: [],
+    currentFilter: '',
+    VOCABULARY: [],
+    currentVocab: 'anatomy',
+    currentWord: null,
 };
 
-// Об'єкт із допоміжними утилітами
 const utils = {
-    /**
-     * Зберігає дані в localStorage
-     * @param {string} key - Ключ для зберігання
-     * @param {any} data - Дані для збереження
-     */
     saveToLocalStorage(key, data) {
         try {
             localStorage.setItem(key, JSON.stringify(data));
@@ -42,20 +36,9 @@ const utils = {
             console.error('Failed to save to localStorage:', e);
         }
     },
-    /**
-     * Повертає випадковий індекс для масиву
-     * @param {number} max - Максимальний індекс
-     * @returns {number} Випадковий індекс
-     */
     getRandomIndex(max) {
         return Math.floor(Math.random() * max);
     },
-    /**
-     * Створює функцію з затримкою (debounce) для уникнення надмірних викликів
-     * @param {function} func - Функція, яку потрібно відкласти
-     * @param {number} wait - Час затримки в мілісекундах
-     * @returns {function} Обгорнута функція з затримкою
-     */
     debounce(func, wait) {
         let timeout;
         return function (...args) {
@@ -65,16 +48,9 @@ const utils = {
     },
 };
 
-/**
- * Ініціалізує функцію синтезу мовлення
- * @returns {function} Функція для програвання слова
- */
 const speakWord = (() => {
     const synth = window.speechSynthesis;
-    if (!synth) {
-        console.warn('Speech synthesis is not supported in this browser.');
-        return () => {};
-    }
+    if (!synth) return () => {};
 
     const utterance = new SpeechSynthesisUtterance();
     utterance.lang = 'en-GB';
@@ -90,58 +66,71 @@ const speakWord = (() => {
     setVoice();
 
     return (word) => {
+        if (synth.speaking) synth.cancel(); // Зупиняємо попереднє програвання, якщо є
         utterance.text = word;
         synth.speak(utterance);
     };
 })();
 
-/**
- * Асинхронно завантажує словникові дані з JSON-файлу
- * @param {string} vocab - Назва категорії
- */
 async function loadVocabulary(vocab) {
     const jsonFile = `vocabulary/${vocab}.json`;
     try {
         const response = await fetch(jsonFile);
-        if (!response.ok) throw new Error('Network response was not ok');
-        state.VOCABULARY = await response.json();
+        if (!response.ok) throw new Error('Network error');
+        const data = await response.json();
+        state.VOCABULARY = Array.isArray(data) ? data : [];
+        updateProgressBar();
     } catch (error) {
         console.error('Error loading vocabulary:', error);
         state.VOCABULARY = [{ word: 'error', transcription: '[ˈerər]', translation: 'помилка' }];
+        updateProgressBar();
     }
 }
 
-/**
- * Завантажує список переглянутих слів із localStorage
- * @param {string} vocab - Назва категорії
- */
+async function updateAllCategoryCounts() {
+    const navItems = document.querySelectorAll(SELECTORS.navItems);
+    for (const item of navItems) {
+        const vocab = item.dataset.vocab;
+        try {
+            const response = await fetch(`vocabulary/${vocab}.json`);
+            if (!response.ok) throw new Error('Network error');
+            const data = await response.json();
+            const count = Array.isArray(data) ? data.length : 0;
+            const link = item.querySelector('.nav-link');
+            const iconElement = link.querySelector('.material-icons');
+            const iconName = iconElement ? iconElement.textContent : '';
+            const pureText = link.textContent.replace(iconName, '').replace(/\(\d+\)$/, '').trim();
+            link.innerHTML = `<span class="material-icons align-middle me-2">${iconName}</span>${pureText} (${count})`;
+        } catch (error) {
+            console.error(`Error loading ${vocab}.json:`, error);
+            const link = item.querySelector('.nav-link');
+            const iconElement = link.querySelector('.material-icons');
+            const iconName = iconElement ? iconElement.textContent : '';
+            const pureText = link.textContent.replace(iconName, '').replace(/\(\d+\)$/, '').trim();
+            link.innerHTML = `<span class="material-icons align-middle me-2">${iconName}</span>${pureText} (0)`;
+        }
+    }
+}
+
 function loadViewedWords(vocab) {
     const storageKey = `viewedWords_${vocab}`;
     state.viewedWords = JSON.parse(localStorage.getItem(storageKey)) || [];
 }
 
-/**
- * Повертає випадкове слово з поточного словника
- * @returns {object} Випадковий об’єкт слова
- */
 function getRandomVocabularyWord() {
-    return state.VOCABULARY[utils.getRandomIndex(state.VOCABULARY.length)];
+    if (state.VOCABULARY.length === 0) return { word: 'No words', transcription: '', translation: 'Немає слів для відображення' };
+    const randomIndex = utils.getRandomIndex(state.VOCABULARY.length);
+    return state.VOCABULARY[randomIndex];
 }
 
-/**
- * Оновлює відображення слова, транскрипції та перекладу на сторінці
- * @param {object} wordObj - Об’єкт зі словом { word, transcription, translation }
- */
 function updateWordDisplay({ word, transcription, translation }) {
-    [SELECTORS.wordDisplay, SELECTORS.transcription, SELECTORS.translation]
-        .map(selector => document.querySelector(selector))
-        .forEach((el, i) => el.textContent = [word, transcription, translation][i]);
+    document.querySelector(SELECTORS.wordDisplay).textContent = word;
+    document.querySelector(SELECTORS.transcription).textContent = transcription;
+    document.querySelector(SELECTORS.translation).textContent = translation;
+    state.currentWord = { word, transcription, translation };
+    updateProgressBar();
 }
 
-/**
- * Додає слово до списку переглянутих і оновлює історію
- * @param {object} wordObj - Об’єкт зі словом
- */
 function addToViewedWords(wordObj) {
     if (!state.viewedWords.some(w => w.word === wordObj.word)) {
         state.viewedWords.push(wordObj);
@@ -150,10 +139,17 @@ function addToViewedWords(wordObj) {
     }
 }
 
-/**
- * Оновлює список переглянутих слів із фільтрацією
- * @param {string} [filterText=''] - Текст для фільтрації
- */
+function updateProgressBar() {
+    const totalWords = state.VOCABULARY.length;
+    const viewedWordsCount = state.viewedWords.length;
+    const progress = (viewedWordsCount / totalWords) * 100 || 0;
+    const progressBar = document.querySelector(SELECTORS.progressBar);
+    const progressText = document.querySelector(SELECTORS.progressText);
+    progressBar.style.width = `${progress}%`;
+    progressBar.setAttribute('aria-valuenow', progress);
+    progressText.textContent = `${viewedWordsCount}/${totalWords || 1} вивчених`;
+}
+
 function updateWordHistory(filterText = '') {
     const list = document.querySelector(SELECTORS.wordList);
     let wordsToShow = [...state.viewedWords];
@@ -163,73 +159,42 @@ function updateWordHistory(filterText = '') {
             entry.translation.toLowerCase().includes(filterText)
         );
     }
-
     wordsToShow.sort((a, b) => a.word.localeCompare(b.word));
-
     list.innerHTML = '';
     if (wordsToShow.length === 0) {
-        list.innerHTML = filterText ? '<li>Нічого не знайдено</li>' : '<li>Список пустий</li>';
+        list.innerHTML = filterText ? '<li class="list-group-item">Нічого не знайдено</li>' : '<li class="list-group-item">Список пустий</li>';
         return;
     }
-
     wordsToShow.forEach(entry => {
         const li = document.createElement('li');
         li.dataset.word = entry.word;
+        li.classList.add('list-group-item', 'd-flex', 'flex-column', 'cursor-pointer');
         li.innerHTML = `
-            <div class="word-row">
-                <span class="material-icons">volume_up</span>
-                ${entry.word} ${entry.transcription}
+            <div class="d-flex align-items-center w-100">
+                <span class="material-icons" style="color: #4C51BF; margin-right: 8px;">volume_up</span>
+                ${entry.word} <small class="text-muted ms-1">${entry.transcription}</small>
             </div>
-            <p>${entry.translation}</p>
+            <p class="mt-1 ms-0">${entry.translation}</p>
         `;
         li.addEventListener('click', () => speakWord(entry.word));
         list.appendChild(li);
     });
 }
 
-/**
- * Перемикає видимість бічної панелі
- * @param {string} sidebarSelector - Селектор бічної панелі
- * @param {boolean} [shouldUpdateHistory=false] - Чи оновлювати історію слів
- */
-function toggleSidebar(sidebarSelector, shouldUpdateHistory = false) {
-    const sidebar = document.querySelector(sidebarSelector);
-    const isOpen = sidebar.classList.contains('open');
-    if (isOpen) {
-        sidebar.classList.remove('open');
-        setTimeout(() => {
-            if (!sidebar.classList.contains('open')) sidebar.style.visibility = 'hidden';
-        }, SIDEBAR_TRANSITION_DURATION);
-    } else {
-        sidebar.style.visibility = 'visible';
-        sidebar.classList.add('open');
-        if (shouldUpdateHistory) updateWordHistory(state.currentFilter);
-    }
+async function switchVocabulary(vocab) {
+    state.currentVocab = vocab;
+    await loadVocabulary(vocab);
+    loadViewedWords(vocab);
+    const newWord = getRandomVocabularyWord();
+    updateWordDisplay(newWord);
+    updateWordHistory('');
+    const card = document.querySelector(SELECTORS.card);
+    card.classList.add('flip');
+    setTimeout(() => card.classList.remove('flip'), ANIMATION_DURATION);
+    bootstrap.Offcanvas.getInstance(document.querySelector(SELECTORS.navSidebar))?.hide();
+    setActiveVocab(vocab);
 }
 
-/**
- * Закриває бічні панелі при кліку поза ними
- * @param {Event} event - Подія кліку
- */
-function closeSidebarOnOutsideClick(event) {
-    const { navSidebar, dictionarySidebar, menuIcon, dictionaryButton } = SELECTORS;
-    if (document.querySelector(navSidebar).classList.contains('open') &&
-        !document.querySelector(navSidebar).contains(event.target) &&
-        event.target !== document.querySelector(menuIcon) &&
-        !document.querySelector(menuIcon).contains(event.target)) {
-        toggleSidebar(navSidebar);
-    }
-    if (document.querySelector(dictionarySidebar).classList.contains('open') &&
-        !document.querySelector(dictionarySidebar).contains(event.target) &&
-        event.target !== document.querySelector(dictionaryButton)) {
-        toggleSidebar(dictionarySidebar);
-    }
-}
-
-/**
- * Встановлює активну категорію та оновлює заголовок
- * @param {string} vocab - Назва категорії
- */
 function setActiveVocab(vocab) {
     const navItems = document.querySelectorAll(SELECTORS.navItems);
     navItems.forEach(item => {
@@ -237,70 +202,37 @@ function setActiveVocab(vocab) {
         item.classList.toggle('active', isActive);
         if (isActive) {
             const categoryTitle = document.querySelector(SELECTORS.categoryTitle);
-            const titleText = item.innerText;
-            categoryTitle.textContent = titleText.replace(/ \(\d+\)$/, '').replace(/^[^\s]+\s/, '').trim() || 'Анатомія'; // Резервне значення
+            const link = item.querySelector('.nav-link');
+            const iconElement = link.querySelector('.material-icons');
+            const iconName = iconElement ? iconElement.textContent : '';
+            const fullText = link.textContent.replace(iconName, '').replace(/\(\d+\)$/, '').trim().split('(')[0].trim();
+            categoryTitle.textContent = fullText || 'Анатомія';
         }
     });
 }
 
-/**
- * Перемикає категорію та оновлює вміст
- * @param {string} vocab - Назва нової категорії
- */
-async function switchVocabulary(vocab) {
-    state.currentVocab = vocab;
-    await loadVocabulary(vocab);
-    loadViewedWords(vocab);
-    const newWord = getRandomVocabularyWord();
-    updateWordDisplay(newWord);
-    addToViewedWords(newWord);
-    updateWordHistory();
-    toggleSidebar(SELECTORS.navSidebar);
-    const card = document.querySelector(SELECTORS.card);
-    card.classList.add('flip');
-    setTimeout(() => card.classList.remove('flip'), 500);
-}
-
-/**
- * Ініціалізує додаток при завантаженні сторінки
- */
 document.addEventListener('DOMContentLoaded', async () => {
+    await updateAllCategoryCounts();
     await loadVocabulary(state.currentVocab);
     loadViewedWords(state.currentVocab);
     const currentWord = getRandomVocabularyWord();
     updateWordDisplay(currentWord);
-    addToViewedWords(currentWord);
-
-    const checkDOMAndSetTitle = () => {
-        const initialNavItem = document.querySelector(`[data-vocab="${state.currentVocab}"]`);
-        if (initialNavItem) {
-            const categoryTitle = document.querySelector(SELECTORS.categoryTitle);
-            const titleText = initialNavItem.innerText;
-            categoryTitle.textContent = titleText.replace(/ \(\d+\)$/, '').replace(/^[^\s]+\s/, '').trim() || 'Анатомія';
-        } else {
-            setTimeout(checkDOMAndSetTitle, 100);
-        }
-    };
-    checkDOMAndSetTitle();
-
+    updateWordHistory('');
+    updateProgressBar();
     document.querySelector(SELECTORS.knowButton).addEventListener('click', () => {
-        const newWord = getRandomVocabularyWord();
-        updateWordDisplay(newWord);
-        addToViewedWords(newWord);
-        const card = document.querySelector(SELECTORS.card);
-        card.classList.add('flip');
-        setTimeout(() => card.classList.remove('flip'), 500);
+        if (state.currentWord) {
+            addToViewedWords(state.currentWord);
+            const newWord = getRandomVocabularyWord();
+            updateWordDisplay(newWord);
+            const card = document.querySelector(SELECTORS.card);
+            card.classList.add('flip');
+            setTimeout(() => card.classList.remove('flip'), ANIMATION_DURATION);
+        }
     });
-
     document.querySelector(SELECTORS.listenButton).addEventListener('click', () => {
         const word = document.querySelector(SELECTORS.wordDisplay).textContent;
         speakWord(word);
     });
-
-    document.querySelector(SELECTORS.dictionaryButton).addEventListener('click', () =>
-        toggleSidebar(SELECTORS.dictionarySidebar, true)
-    );
-
     document.querySelector(SELECTORS.filterInput).addEventListener(
         'input',
         utils.debounce((e) => {
@@ -308,23 +240,22 @@ document.addEventListener('DOMContentLoaded', async () => {
             updateWordHistory(state.currentFilter);
         }, 300)
     );
-
-    document.querySelector(SELECTORS.menuIcon).addEventListener('click', () =>
-        toggleSidebar(SELECTORS.navSidebar)
-    );
-
+    document.querySelector(SELECTORS.dictionaryButton).addEventListener('click', () => {
+        updateWordHistory(state.currentFilter);
+    });
     document.querySelectorAll(SELECTORS.navItems).forEach(item =>
-        item.addEventListener('click', () => {
+        item.addEventListener('click', (e) => {
+            e.preventDefault();
             const vocab = item.dataset.vocab;
-            if (vocab !== state.currentVocab) {
-                switchVocabulary(vocab);
-                setActiveVocab(vocab);
-            } else {
-                toggleSidebar(SELECTORS.navSidebar);
-            }
+            if (vocab !== state.currentVocab) switchVocabulary(vocab);
         })
     );
-
+    document.querySelector('.navbar-toggler').addEventListener('click', function () {
+        this.classList.toggle('active');
+        const offcanvas = document.getElementById('navSidebar');
+        offcanvas.addEventListener('hidden.bs.offcanvas', () => {
+            this.classList.remove('active');
+        }, { once: true });
+    });
     setActiveVocab(state.currentVocab);
-    document.addEventListener('click', closeSidebarOnOutsideClick);
 });
